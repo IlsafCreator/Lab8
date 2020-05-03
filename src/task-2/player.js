@@ -36,6 +36,14 @@ class PlayerList {
       this.currentTrackName = this.songs[this.currentTrackIndex].getSongName();
     }
   }
+  shuffle() {
+    if (this.songs && this.songs.length !== 0) {
+      for (let i = this.songs.length - 1; i > 0; i--) {
+        let j = Math.floor(Math.random() * (i + 1));
+        [this.songs[i], this.songs[j]] = [this.songs[j], this.songs[i]];
+      }
+    }
+  }
   getCurrentTrack() {
     return this.currentTrackName;
   }
@@ -45,10 +53,11 @@ class Player {
   constructor(playerList) {
     this.playerList = new PlayerList(playerList);
     this.status = 'stop';
+    this.volume = 50;
   }
   display() {
     if (this.playerList.songs.length > 0) {
-      return 'Track: ' + this.playerList.getCurrentTrack() + '; Status: ' + this.status;
+      return 'Track: ' + this.playerList.getCurrentTrack() + '; Status: ' + this.status + '; Volume:' + this.volume;
     } else {
       return 'Player list is empty';
     }
@@ -74,25 +83,22 @@ class Player {
   prev() {
     this.playerList.prev();
   }
+  increaseVolume() {
+    if (this.volume >= 0 && this.volume + 10 <= 100) {
+      this.volume += 10;
+    } else {
+      return 'volume is already max';
+    }
+  }
+  decreaseVolume() {
+    if (this.volume - 10 >= 0 && this.volume <= 100) {
+      this.volume -= 10;
+    } else {
+      return 'volume is already min';
+    }
+  }
+  shuffle() {
+    this.playerList.shuffle();
+  }
 }
-const player = new Player([new Song('Children of cyberpunk', 209),
-new Song('Beat it', 211), new Song('Country road', 240),
-new Song('Venger', 310), new Song('Чёрное солнце', 289)]);
-
-console.log(player.next());
-console.log(player.next());
-console.log(player.display());
-console.log(player.prev());
-console.log(player.display());
-console.log(player.play());
-console.log(player.display());
-console.log(player.pause());
-console.log(player.display());
-
-const player2 = new Player([]);
-console.log(player2.display());
-console.log(player2.next());
-console.log(player2.display());
-console.log(player2.prev());
-console.log(player2.display());
-
+module.exports = { Song, Player };

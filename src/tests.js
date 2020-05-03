@@ -4,7 +4,7 @@ const isTimeRangesIntersect = require('./task-1/functions/isIntersect.js');//don
 const replaceString = require('./task-1/functions/replace.js');//done
 const Cat = require('./task-1/functions/cat.js');//done
 const Cashbox = require('./task-1/functions/cashbox.js');//done
-// const Player = require('./task-2/player.js');//inprogress
+const Player = require('./task-2/player.js');//inprogress
 var assert = require('assert');
 
 describe('pulloutArray', () => {
@@ -248,7 +248,182 @@ describe('Cashbox', () => {
 });
 
 describe('Player', () => {
-  it('', () => {
-
+  describe('constructor', () => {
+    it('При создании объекта по умолчанию (без параметров), playerList будет пуст', () => {
+      const player = new Player.Player();
+      assert.equal(player.playerList.songs.length, 0);
+    });
+    it('При создании объекта с использование параметров,размер playerList будет равен количеству треков', () => {
+      const player = new Player.Player([
+        new Player.Song('Children of cyberpunk', 209),
+        new Player.Song('Beat it', 211),
+        new Player.Song('Country road', 240),
+        new Player.Song('Venger', 310),
+        new Player.Song('Чёрное солнце', 289)
+      ]);
+      assert.equal(player.playerList.songs.length, 5);
+    })
+  });
+  describe('display', () => {
+    it('вызов функции после создания валидного объекта вернёт ожидаемый результат', () => {
+      const player = new Player.Player([
+        new Player.Song('Children of cyberpunk', 209)
+      ]);
+      assert.equal(player.display(), 'Track: Children of cyberpunk; Status: stop; Volume:50')
+    });
+    it('вызов функции после создания объекта по умолчанию (без параметров) вернёт сообщение о том, что playerList пуст', () => {
+      const player = new Player.Player();
+      assert.equal(player.display(), 'Player list is empty')
+    });
+  });
+  describe('play', () => {
+    it('вызов функции при пустом плейлисте не влияет на состояние \'player\'', () => {
+      const player = new Player.Player();
+      player.play();
+      assert.equal(player.status, 'stop');
+      assert.equal(player.display(), 'Player list is empty');
+    });
+    it('вызов функции при непустом плейлисте меняет состояние свойства \'status\' на \'play\'', () => {
+      const player = new Player.Player([
+        new Player.Song('Children of cyberpunk', 209)
+      ]);
+      player.play();
+      assert.equal(player.status, 'play');
+      assert.equal(player.display(), 'Track: Children of cyberpunk; Status: play; Volume:50')
+    });
+  });
+  describe('pause', () => {
+    it('вызов функции при пустом плейлисте не влияет на состояние \'player\'', () => {
+      const player = new Player.Player();
+      player.pause();
+      assert.equal(player.status, 'stop');
+      assert.equal(player.display(), 'Player list is empty');
+    });
+    it('вызов функции при непустом плейлисте меняет состояние свойства \'status\' на \'pause\'', () => {
+      const player = new Player.Player([
+        new Player.Song('Children of cyberpunk', 209)
+      ]);
+      player.pause();
+      assert.equal(player.status, 'pause');
+      assert.equal(player.display(), 'Track: Children of cyberpunk; Status: pause; Volume:50')
+    });
+  });
+  describe('next', () => {
+    it('при вызове функции с пустым \'playList\', состояние \'player\'а не измениться и вернётся сообщение о пустом \'playlist\' ', () => {
+      const player = new Player.Player();
+      assert.equal(player.display(), 'Player list is empty');
+      player.next();
+      assert.equal(player.display(), 'Player list is empty');
+    });
+    it('при вызове функции с \'playList\' содержащим треки, \'player\' изменит своё состояние и переключится на следующий трек', () => {
+      const player = new Player.Player([
+        new Player.Song('Children of cyberpunk', 209),
+        new Player.Song('Beat it', 211),
+        new Player.Song('Country road', 240),
+        new Player.Song('Venger', 310),
+        new Player.Song('Чёрное солнце', 289)
+      ]);
+      assert.equal(player.display(), 'Track: Children of cyberpunk; Status: stop; Volume:50');
+      player.next();
+      assert.equal(player.display(), 'Track: Beat it; Status: stop; Volume:50')
+    });
+    it('при вызове функции на последнем треке в \'playList\', \'player\' переместится на первый трек', () => {
+      const player = new Player.Player([
+        new Player.Song('Children of cyberpunk', 209),
+        new Player.Song('Beat it', 211)
+      ]);
+      assert.equal(player.display(), 'Track: Children of cyberpunk; Status: stop; Volume:50');
+      player.next();
+      assert.equal(player.display(), 'Track: Beat it; Status: stop; Volume:50');
+      player.next();
+      assert.equal(player.display(), 'Track: Children of cyberpunk; Status: stop; Volume:50');
+    });
+  });
+  describe('prev', () => {
+    it('при вызове функции с пустым \'playList\', состояние \'player\'а не измениться и вернётся сообщение о пустом \'playlist\' ', () => {
+      const player = new Player.Player();
+      assert.equal(player.display(), 'Player list is empty');
+      player.prev();
+      assert.equal(player.display(), 'Player list is empty');
+    });
+    it('при вызове функции с \'playList\' содержащим треки, \'player\' изменит своё состояние и переключится на предыдущий трек', () => {
+      const player = new Player.Player([
+        new Player.Song('Children of cyberpunk', 209),
+        new Player.Song('Beat it', 211),
+        new Player.Song('Country road', 240),
+        new Player.Song('Venger', 310),
+        new Player.Song('Чёрное солнце', 289)
+      ]);
+      assert.equal(player.display(), 'Track: Children of cyberpunk; Status: stop; Volume:50');
+      player.next();
+      assert.equal(player.display(), 'Track: Beat it; Status: stop; Volume:50');
+      player.prev();
+      assert.equal(player.display(), 'Track: Children of cyberpunk; Status: stop; Volume:50');
+    });
+    it('при вызове функции на первом треке в \'playList\', \'player\' переместится на последний трек', () => {
+      const player = new Player.Player([
+        new Player.Song('Children of cyberpunk', 209),
+        new Player.Song('Beat it', 211),
+        new Player.Song('Country road', 240),
+        new Player.Song('Venger', 310),
+        new Player.Song('Чёрное солнце', 289)
+      ]);
+      assert.equal(player.display(), 'Track: Children of cyberpunk; Status: stop; Volume:50');
+      player.prev();
+      assert.equal(player.display(), 'Track: Чёрное солнце; Status: stop; Volume:50');
+    });
+  });
+  describe('increaseVolume', () => {
+    it('вызов функции при нормальной громкости увеличивает звук', () => {
+      const player = new Player.Player([
+        new Player.Song('Children of cyberpunk', 209)
+      ]);
+      player.volume = 50;
+      player.increaseVolume();
+      assert.equal(player.volume, 60);
+    });
+    it('вызов функции при максимальной(100) громкости возвращает сообщение и не увеличивает звук', () => {
+      const player = new Player.Player([
+        new Player.Song('Children of cyberpunk', 209)
+      ]);
+      player.volume = 100;
+      assert.equal(player.increaseVolume(), 'volume is already max');
+    });
+  });
+  describe('decreaseVolume', () => {
+    it('вызов функции при нормальной громкости уменьшает звук', () => {
+      const player = new Player.Player([
+        new Player.Song('Children of cyberpunk', 209)
+      ]);
+      player.volume = 50;
+      player.decreaseVolume();
+      assert.equal(player.volume, 40);
+    });
+    it('вызов функции при минимальной(0) громкости возвращает сообщение и не уменьшает звук', () => {
+      const player = new Player.Player([
+        new Player.Song('Children of cyberpunk', 209)
+      ]);
+      player.volume = 0;
+      assert.equal(player.decreaseVolume(), 'volume is already min');
+    });
+  });
+  describe('shuffle', () => {
+    it('вызов функции меняет порядок треков в \'playerList\'', () => {
+      const player = new Player.Player([
+        new Player.Song('Children of cyberpunk', 209),
+        new Player.Song('Beat it', 211),
+        new Player.Song('Country road', 240),
+        new Player.Song('Venger', 310),
+        new Player.Song('Чёрное солнце', 289)
+      ]);
+      player.shuffle();
+      assert.notEqual(player.playerList.songs, [
+        new Player.Song('Children of cyberpunk', 209),
+        new Player.Song('Beat it', 211),
+        new Player.Song('Country road', 240),
+        new Player.Song('Venger', 310),
+        new Player.Song('Чёрное солнце', 289)
+      ]);
+    });
   });
 });
